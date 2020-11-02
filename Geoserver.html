@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+	<head>
+			<link rel="stylesheet" href="resetstyle.css">
+	    <link rel="stylesheet" href="style.css">
+		  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<meta charset="utf-8">
+			<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+	     integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+	     crossorigin=""/>
+		   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+				integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+				crossorigin=""></script>
+				<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+				<script src="https://unpkg.com/esri-leaflet@2.5.0/dist/esri-leaflet.js"
+		    integrity="sha512-ucw7Grpc+iEQZa711gcjgMBnmd9qju1CICsRaryvX7HJklK0pGl/prxKvtHwpgm5ZHdvAil7YPxI1oWPOWK3UQ=="
+		    crossorigin=""></script>
+				<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+				<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+				<script src="js\L.TileLayer.BetterWMS.js"></script>
+				<script src="js\leaflet.groupedlayercontrol.min.js"></script>
+				<link rel="stylesheet" href="js\leaflet.groupedlayercontrol.min.css">
+				<script src="js\leaflet.wmslegend.js"></script>
+				<link rel="stylesheet" href="js\leaflet.wmslegend.css">
+				<script src="https://unpkg.com/leaflet-wfst@2.0.1-beta.18/dist/leaflet-wfst.min.js"></script>
+
+	</head>
+	<body>
+		<div class="header">
+			 <div class="btn-toggle-nav" onclick="toggleNav()"></div>
+			 <h2>Opensource Map<h2>
+		 </div>
+		 <div id="mapframe">
+		 </div>
+		 <aside class="nav-sidebar">
+			 <ul>
+				 <li><span><a href="index.html">Home</a></span></li>
+				 <li><a href="GeoServer.html">GeoServer</a></li>
+				 <li><a href="Query.html">Query</a></li>
+				 <li><a href="Data.html">Data</a></li>
+				 <li><a href="About.html">About</a></li>
+			 </ul>
+		 </aside>
+		 <script>
+		 var map = L.map("mapframe").setView([12.980806, 77.57309],10);
+
+			 const tile = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+			 const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+			 var osmMap = L.tileLayer(tile,{attribution}).addTo(map);
+			 var EsriImagery = L.esri.basemapLayer('Imagery');
+			 var EsriStreets = L.esri.basemapLayer('Streets');
+			 var baseLayers = {
+			"OpenstreetMap": osmMap,
+			"Imagery": EsriImagery,
+			"Streets": EsriStreets
+			 };
+
+			 var drawnItems = new L.FeatureGroup();
+				map.addLayer(drawnItems);
+
+				var drawControl = new L.Control.Draw({
+				position: 'topleft',
+				draw: {
+				polygon: {
+					allowIntersection: false
+				},
+				marker: false
+			},
+			edit: {
+					featureGroup: drawnItems,
+					remove: true,
+			}
+	});
+	map.addControl(drawControl);
+	map.on('draw:created', function(e) {
+		drawnItems.addLayer(e.layer);
+	});
+	map.on('draw:edited', function(e) {
+	});
+
+
+      var url = "http://localhost:8080/geoserver/wms";
+			 var wmsLayer= L.tileLayer.wms(url, {
+				layers: 'WFS_Layers:Population_centroid',
+				format: 'image/png',
+				transparent: true,
+			  zIndex:2
+		});
+
+// To insert Legend
+/*uri = "http://localhost:8080/geoserver/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=PostGIS:india_ds";
+L.wmsLegend(uri);*/
+
+		var wmsLayer2= L.tileLayer.wms(url, {
+		 layers: 'PostGIS:india_ds',
+		 format: 'image/png',
+		 transparent: true,
+		 zIndex:2
+ })
+
+		     L.tileLayer.betterWms(url, {
+					 layers: 'WFS_Layers:Population_centroid',
+					 transparent: true,
+					 format: 'image/png',
+					 zIndex:0
+				 }).addTo(map);
+
+				 L.tileLayer.betterWms(url, {
+ 					layers: 'PostGIS:india_ds',
+ 					transparent: true,
+ 					format: 'image/png',
+ 					zIndex:0
+ 				}).addTo(map);
+
+
+		var rootUrl = 'http://localhost:8080/geoserver/wfs';
+		var defaultParameters = {
+		    service: 'WFS',
+		    version: '1.0.0',
+		    request: 'GetFeature',
+		    typeName: '	WFS_Layers:Population_centroid',
+		    maxFeatures: 200,
+		    outputFormat: 'application/json',
+		    srsName:'EPSG:4326'
+		};
+
+		var parameters = L.Util.extend(defaultParameters);
+		var URL = rootUrl + L.Util.getParamString(parameters);
+
+		var WFSLayer = null;
+		var ajax = $.ajax({
+		    url : URL,
+		    dataType : 'json',
+		    jsonpCallback : 'getJson',
+		    success : function (response) {
+		      var WFSLayer = L.geoJson(response, {
+		            style: function (feature) {
+		                return {
+		                    stroke: false,
+		                    fillColor: 'FFFFFF',
+		                    fillOpacity: 1
+		                };
+		            }
+		        });/*addTo(map)*/
+		    }
+		});
+
+		 var groupedOverlays = {
+		   "GeoServer": {
+		     "WMS Layer": wmsLayer
+		   },
+		   "PostGIS": {
+		     "Indian_District" : wmsLayer2
+		   }
+		 };
+
+				L.control.groupedLayers(baseLayers,groupedOverlays).addTo(map);
+			  var popup = L.popup();
+
+
+		 </script>
+</body>
+<script src="main.js"></script>
+</html>

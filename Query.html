@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+	<head>
+			<link rel="stylesheet" href="resetstyle.css">
+	    <link rel="stylesheet" href="style.css">
+		  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<meta charset="utf-8">
+		  	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+		   	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js"></script>
+				<script src="https://unpkg.com/esri-leaflet@2.5.0/dist/esri-leaflet.js"
+		    integrity="sha512-ucw7Grpc+iEQZa711gcjgMBnmd9qju1CICsRaryvX7HJklK0pGl/prxKvtHwpgm5ZHdvAil7YPxI1oWPOWK3UQ=="
+		    crossorigin=""></script>
+				<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
+				<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+
+
+	</head>
+	<body>
+		<div class="header">
+			 <div class="btn-toggle-nav" onclick="toggleNav()"></div>
+			 <h2>Opensource Map<h2>
+		 </div>
+		 <div id="mapframe">
+		 </div>
+		 <aside class="nav-sidebar">
+			 <ul>
+				 <li><span><a href="index.html">Home</a></span></li>
+				 <li><a href="#">GeoServer</a></li>
+				 <li><a href="#">PostGIS</a></li>
+				 <li><a href="#">DataUpload</a></li>
+				 <li><a href="#">About</a></li>
+			 </ul>
+		 </aside>
+     <div id="panel" class="leaflet-bar">
+         Neighborhoods
+       <select name="relation" id="relationSelect">
+         <option value="within">Within<options>
+         <option value="contains">Contains<options>
+         <option value="intersects">Intersects<options>
+         <option value="overlaps">Overlaps<options>
+       </select>
+       <select name="geometry" id="geometrySelect">
+         <option value="bounds">Bounds<options>
+         <option value="point">Point<options>
+         <option value="line">Line<options>
+         <option value="polygon">Polygon<options>
+       </select>
+       <button id="executeQuery">Run Query</button>
+     </div>
+
+		 <script>
+
+     var map = L.map('mapframe').setView([45.525, -122.628], 11);
+
+     L.esri.basemapLayer('Topographic').addTo(map);
+     // create our layer
+     var neighborhoods = L.esri.featureLayer({
+       url: 'https://www.portlandmaps.com/arcgis/rest/services/Public/Zoning/MapServer/32',
+       style: {
+         color: '#000',
+         weight: 1,
+         opacity: 0.4
+       }
+     }).addTo(map);
+
+		 var drawnItems = new L.FeatureGroup();
+		 map.addLayer(drawnItems);
+		 var drawControl = new L.Control.Draw({
+		 position: 'topleft',
+		 draw: {
+		 polygon: {
+			 allowIntersection: false
+		 },
+		 marker: false
+	 },
+	 edit: {
+			 featureGroup: drawnItems,
+			 remove: true,
+		buffer: {
+		replacePolylines: false,
+		separateBuffer: false,
+	},
+	 }
+});
+map.addControl(drawControl);
+map.on('draw:created', function(e) {
+ drawnItems.addLayer(e.layer);
+});
+map.on('draw:edited', function(e) {
+});
+
+
+     // collect geometries into an object so we can reference them later
+     var geometries = {
+       bounds: bounds,
+       line: line,
+       polygon: polygon,
+       point: marker
+     };
+
+     // get references to our <select> elements
+     var relationship = document.getElementById('relationSelect');
+     var geometry = document.getElementById('geometrySelect');
+     var runQueryButton = document.getElementById('executeQuery');
+
+     var previousIds = [];
+
+     // reset all features back to their regularly defined styles
+     function reset () {
+       for (var i = previousIds.length - 1; i >= 0; i--) {
+         neighborhoods.resetStyle(previousIds[i]);
+       }
+   }
+     // query the API and highlight features
+     function query () {
+       reset();
+       // lookup our input geometry
+       var inputGeometry = drawnItems[geometry.value];
+
+       // query the service executing the selected relation with the selected input geometry
+       neighborhoods.query()[relationship.value](inputGeometry).ids(function (error, ids) {
+         // if there is an error with the query, you can handle it here
+         if (error) {
+           console.log('Error with query: ' + error);
+         } else if (ids) {
+           previousIds = ids;
+           for (var i = ids.length - 1; i >= 0; i--) {
+             neighborhoods.setFeatureStyle(ids[i], { color: 'red', weight: 2 });
+           }
+         }
+       });
+     }
+
+     // query when "Run Query" button is clicked
+     runQueryButton.addEventListener('click', query);
+
+     // once all neighborhoods have loaded run the default query
+     neighborhoods.once('load', function () {
+       query();
+     });
+
+</script>
+</body>
+<script src="main.js"></script>
+</html>

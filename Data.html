@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+	<head>
+			<link rel="stylesheet" href="resetstyle.css">
+	    <link rel="stylesheet" href="style.css">
+		  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<meta charset="utf-8">
+				<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+				 integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+				 crossorigin=""/>
+				<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+ 				integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+ 				crossorigin=""></script>
+				<script src="https://unpkg.com/esri-leaflet@2.5.0/dist/esri-leaflet.js"
+		    integrity="sha512-ucw7Grpc+iEQZa711gcjgMBnmd9qju1CICsRaryvX7HJklK0pGl/prxKvtHwpgm5ZHdvAil7YPxI1oWPOWK3UQ=="
+		    crossorigin=""></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+				<script src="https://unpkg.com/togeojson@0.16.0"></script>
+        <script src="https://unpkg.com/leaflet-filelayer@1.2.0"></script>
+				<script src="https://npmcdn.com/react-leaflet-easyprint@2.0.0/dist/react-leaflet-easyprint.js"></script>
+				<link href='http://fonts.googleapis.com/css?family=Lato:900,300' rel='stylesheet' type='text/css'>
+				<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+				<script src="https://unpkg.com/togeojson@0.16.0"></script>
+        <script src="https://unpkg.com/leaflet-filelayer@1.2.0"></script>
+				<script src="js\bundle.js"></script>
+				<script src="https://cdn.rawgit.com/calvinmetcalf/shapefile-js/gh-pages/dist/shp.js"></script>
+				<script src="https://cdn.rawgit.com/calvinmetcalf/leaflet.shapefile/gh-pages/leaflet.shpfile.js"></script>
+	</head>
+	<body>
+		<div class="header">
+			 <div class="btn-toggle-nav" onclick="toggleNav()"></div>
+			 <h2>Opensource Map<h2>
+		 </div>
+		 <div id="mapframe">
+		 </div>
+		 <aside class="nav-sidebar">
+			 <ul>
+				 <li><span><a href="index.html">Home</a></span></li>
+				 <li><a href="GeoServer.html">GeoServer</a></li>
+				 <li><a href="Query.html">Query</a></li>
+				 <li><a href="Data.html">Data</a></li>
+				 <li><a href="About.html">About</a></li>
+			 </ul>
+		 </aside>
+		 <div class="input_shapefile">
+			 <label>Select a zipped shapefile:</label>
+  		 <input type="file" id="file"> <br>
+       <input type="submit" id="submit"> <span id="warning"></span>
+		 </div>
+
+		 <script>
+		 var map = L.map('mapframe').setView([12.980806, 77.57309],10);
+	 // const stamen = new L.StamenTileLayer("terrain").addTo(map);
+		 var tiles = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}.png', {
+			 maxZoom: 18,
+			 attribution: 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+		 }).addTo(map);
+
+		 var printer = L.easyPrint({
+					 tileLayer: tiles,
+					 sizeModes: ['Current', 'A4Landscape', 'A4Portrait'],
+					 filename: 'myMap',
+					 exportOnly: true,
+					 hideClasses: ['leaflet-control-easyPrint'],
+					 hideControlContainer: false,
+					 position:'topright'
+		 }).addTo(map);
+
+		 function manualPrint () {
+			 printer.printMap('CurrentSize', 'MyManualPrint')
+		 }
+
+		 L.Control.fileLayerLoad({
+		 		// Allows you to use a customized version of L.geoJson.
+		 		// For example if you are using the Proj4Leaflet leaflet plugin,
+		 		// you can pass L.Proj.geoJson and load the files into the
+		 		// L.Proj.GeoJson instead of the L.geoJson.
+		 		layer: L.geoJson,
+		 		// See http://leafletjs.com/reference.html#geojson-options
+		 		layerOptions: {style: {color:'red'}},
+		 		// Add to map after loading (default: true) ?
+		 		addToMap: true,
+		 		// File size limit in kb (default: 1024) ?
+		 		fileSizeLimit: 3072,
+		 		// Restrict accepted file formats (default: .geojson, .json, .kml, and .gpx) ?
+		 		formats: [
+		 				'.geojson',
+		 				'.kml'
+		 		]
+		 }).addTo(map);
+
+		 var control = L.Control.fileLayerLoad();
+		 control.loader.on('data:loaded', function (event) {
+		 	// event.layer gives you access to the layers you just uploaded!
+
+		 	// Add to map layer switcher
+		 	layerswitcher.addOverlay(event.layer, event.filename);
+		 });
+		 var control = L.Control.fileLayerLoad();
+		 control.loader.on('data:error', function (error) {
+		 	// Do something usefull with the error!
+		 	console,error(error);
+		 });
+
+</script>
+</body>
+<script src="main.js"></script>
+<script src="js\Shapefile_upload.js"></script>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+	<head>
+			<link rel="stylesheet" href="resetstyle.css">
+	    <link rel="stylesheet" href="style.css">
+		  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<meta charset="utf-8">
+			<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+	     integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+	     crossorigin=""/>
+		   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+				integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+				crossorigin=""></script>
+				<script src="https://unpkg.com/esri-leaflet@2.5.0/dist/esri-leaflet.js"
+		    integrity="sha512-ucw7Grpc+iEQZa711gcjgMBnmd9qju1CICsRaryvX7HJklK0pGl/prxKvtHwpgm5ZHdvAil7YPxI1oWPOWK3UQ=="
+		    crossorigin=""></script>
+				<link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.3.3/dist/esri-leaflet-geocoder.css"
+        integrity="sha512-IM3Hs+feyi40yZhDH6kV8vQMg4Fh20s9OzInIIAc4nx7aMYMfo+IenRUekoYsHZqGkREUgx0VvlEsgm7nCDW9g=="
+        crossorigin="">
+        <script src="https://unpkg.com/esri-leaflet-geocoder@2.3.3/dist/esri-leaflet-geocoder.js"
+        integrity="sha512-HrFUyCEtIpxZloTgEKKMq4RFYhxjJkCiF5sDxuAokklOeZ68U2NPfh4MFtyIVWlsKtVbK5GD2/JzFyAfvT5ejA=="
+        crossorigin=""></script>
+				<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+				<script src = "https://cdn.jsdelivr.net/npm/leaflet-buffer@0.3.1/dist/leaflet.buffer.min.js"></script>
+				<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+				<script src="js\site.js"></script>
+				<script src="js\tokml.js"></script>
+				<script src="js\L.TileLayer.BetterWMS.js"></script>
+				<script src="js\leaflet.groupedlayercontrol.min.js"></script>
+				<link rel="stylesheet" href="js\leaflet.groupedlayercontrol.min.css">
+
+	</head>
+	<body>
+		<div class="header">
+			 <div class="btn-toggle-nav" onclick="toggleNav()"></div>
+			 <h2>Opensource Map<h2>
+		 </div>
+		 <div id="mapframe">
+		 </div>
+		 <aside class="nav-sidebar">
+			 <ul>
+				 <li><span>Project</span></li>
+				 <li><a href="GeoServer.html">GeoServer</a></li>
+				 <li><a href="Query.html">Query</a></li>
+				 <li><a href="Data.html">Data</a></li>
+				 <li><a href="About.html">About</a></li>
+			 </ul>
+		 </aside>
+		 <button id='delete'>Delete Features</button>
+     <button id ='btexport'><a href="#" id='export' role="button">Export Features</a></button>
+
+		 <button href="#" id="toggle-content">L</button>
+		 <div id="content">
+		 <img src ="img/Legend.png">
+		 </div>
+
+		 <script>
+
+		 $("#content").hide();
+		 $(".close-image").ready(function() {
+    $(this).parent().hide();
+			});
+
+			$("#toggle-content").click(function() {
+			    $("#content").slideToggle();
+			});
+
+		 var map = L.map("mapframe").setView([28.54382, 77.33244],4);
+			 const tile = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+			 const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+			 var osmMap = L.tileLayer(tile,{attribution});
+			 var EsriImagery = L.esri.basemapLayer('Imagery').addTo(map);
+			 var EsriStreets = L.esri.basemapLayer('Streets');
+
+			 var url = "https://bhuvan-vec2.nrsc.gov.in/bhuvan/wms";
+			 var wmsLayer= L.tileLayer.wms(url, {
+				layers: 'lulc:DL_LULC50K_1516',
+				format: 'image/png',
+				transparent: true,
+				zIndex:2
+		});
+
+
+		var wmsLayer2= L.tileLayer.wms(url, {
+		 layers: 'lulc:UP_LULC50K_1516',
+		 format: 'image/png',
+		 transparent: true,
+		 zIndex:2
+ });
+
+
+
+			var baseLayers = {
+			"OpenstreetMap": osmMap,
+			"Imagery": EsriImagery,
+			"Streets": EsriStreets
+			 };
+
+			 var groupedOverlays = {
+				 "LULC": {
+					 "Delhi" : wmsLayer,
+					 "Uttar Pradesh" : wmsLayer2
+				 }
+			 };
+
+			 var searchControl = L.esri.Geocoding.geosearch().addTo(map);
+       var results = L.layerGroup().addTo(map);
+
+       searchControl.on('results', function (data) {
+       results.clearLayers();
+		   for (var i = data.results.length - 1; i >= 0; i--) {
+		   results.addLayer(L.marker(data.results[i].latlng));
+		    }
+		   });
+
+       L.control.groupedLayers(baseLayers,groupedOverlays).addTo(map);
+			 L.esri.basemapLayer('ImageryLabels').addTo(map);
+
+			 var popup = L.popup();
+			 /*function onMapClick(e) {
+					 popup
+							 .setLatLng(e.latlng)
+							 .setContent("Coordinates in " + e.latlng.toString())
+							 .openOn(map);
+			 }
+			 map.on('click', onMapClick); */
+
+			 var drawnItems = new L.FeatureGroup();
+			 map.addLayer(drawnItems);
+			 var drawControl = new L.Control.Draw({
+			 position: 'topright',
+			 draw: {
+			 polygon: {
+				 allowIntersection: false
+			 },
+			 markers: true
+		 },
+		 edit: {
+				 featureGroup: drawnItems,
+				 remove: true,
+      buffer: {
+      replacePolylines: false,
+      separateBuffer: false,
+    },
+		 }
+ });
+ map.addControl(drawControl);
+ map.on('draw:created', function(e) {
+	 drawnItems.addLayer(e.layer);
+ });
+ map.on('draw:edited', function(e) {
+ });
+
+ document.getElementById('delete').onclick = function(e) {
+            drawnItems.clearLayers();
+        }
+
+        document.getElementById('export').onclick = function(e) {
+            // Extract GeoJson from featureGroup
+            var data = drawnItems.toGeoJSON();
+						var kml = tokml(data);
+
+            // Stringify the GeoJson
+            var convertedData = 'application/xml;charset=utf-8,' + encodeURIComponent(kml);
+
+            // Create export
+            document.getElementById('export').setAttribute('href', 'data:' + convertedData);
+            document.getElementById('export').setAttribute('download','data.kml');
+        }
+
+</script>
+</body>
+<script src="main.js"></script>
+</html>

@@ -1,0 +1,210 @@
+
+#info{
+    border: solid red;
+    width: 50%;
+}
+
+.close-image{
+    display: block;
+    float:right;
+    position:relative;
+    top:-10px;
+    right: -10px;
+    height: 20px;
+}
+
+#toggle-content{
+  position: absolute;
+  margin-top: 60px;
+  top: 150px;
+  left: 20px;
+  z-index: 500;
+  padding: 10px;
+}
+
+#content{
+  border: solid black;
+  width: 15%;
+  position: absolute;
+  margin-top: 60px;
+  top: 250px;
+  left: 20px;
+  z-index: 1000;
+  padding: 10px;
+}
+
+
+#delete{
+  margin-top: 60px;
+  position: absolute;
+  top: 539px;
+  right: 5px;
+  z-index: 1000;
+  background: white;
+  padding: 10px;
+  display: block;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+
+#btexport {
+          margin-top: 60px;
+          position: absolute;
+          top: 490px;
+          right: 5px;
+          z-index: 1000;
+          background: white;
+          padding: 10px;
+          display: block;
+          font-weight: 600;
+          text-align: center;
+          border-radius: 5px;
+          cursor: pointer;
+                }
+
+
+
+#export{
+  color: black;
+  text-decoration: none;
+}
+
+.input_shapefile {
+  margin-top: 60px;
+  position: absolute;
+  top: 539px;
+  right: 2px;
+  z-index: 500;
+  background: transparent;
+  padding: 10px;
+}
+
+
+body {
+  background-color: #F1F1F1;
+}
+
+.Container{
+  width: 100%;
+  height: 650px;
+}
+
+#mapframe{
+  margin-left: 10px;
+  height: 600px;
+  margin-top: 60px;
+}
+
+.leaflet-fade-anim .leaflet-tile,.leaflet-zoom-anim .leaflet-zoom-animated { will-change:auto !important; }
+
+.header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 60px;
+  background-color: #BAA03A;
+  display: flex;
+  flex-wrap: wrap;
+  z-index: 1000;
+  opacity: 90%;
+}
+
+.header h2{
+  text-align: center;
+  padding: 15px;
+  font-size: 30px;
+  font-family: sans-serif;
+  background-color: black;
+  color: white;
+}
+
+.btn-toggle-nav {
+  width: 60px;
+  height: 100%;
+  background-color: #F98F39;
+  background-image: url("img/menu.png");
+  background-repeat: no-repeat;
+  background-size: 40%;
+  background-position: center;
+  cursor: pointer;
+}
+
+.btn-toggle-nav:hover {
+  opacity: 0.5;
+}
+
+.nav-main ul {
+  display: flex;
+  flex-wrap: wrap;
+  padding-left: 15px;
+}
+
+.nav-main ul li {
+  list-style: none;
+  line-height: 60px;
+}
+
+.nav-main ul li a {
+  display: block;
+  height: 100%;
+  padding: 0 10px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #111;
+  font-family: arial;
+  font-size: 16px;
+}
+
+.nav-sidebar {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 0px;
+  height: calc(100vh - 60px);
+  padding: 0 5px;
+  background-color: #1b1b1b;
+  z-index: 1000;
+  transition: all 0.3s ease-in-out;
+}
+
+.nav-sidebar ul {
+  padding-top: 15px;
+  overflow: hidden;
+  visibility: hidden;
+}
+
+.nav-sidebar ul li {
+  line-height: 60px;
+  list-style: none;
+}
+
+.nav-sidebar ul li span, .nav-sidebar ul li a {
+  display: block;
+  height: 60px;
+  padding: 0 10px;
+  text-decoration: none;
+  text-transform: uppercase;
+  color: #FFF;
+  font-family: arial;
+  font-size: 16px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+}
+
+.nav-sidebar ul li a:hover {
+  background-color: #222;
+}
+
+#panel {
+  margin-top: 60px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  background: white;
+  padding: 10px;
+}
