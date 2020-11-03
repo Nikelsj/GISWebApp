@@ -8,4 +8,6 @@ Geocoding toolbar allows for quick search of any address in current map extent.<
 Buffer tool is utilized to generate buffer for geometries drawn. <br>
 Delete feature button clears the map on click. <br>
 Export features converts features drawn on the map from geojson to kml which then can be downloaded to computer. <br><br>
-![image](https://user-images.githubusercontent.com/50727403/97994958-edeae580-1e0b-11eb-92fc-32336c9139ba.png)
+![image](https://user-images.githubusercontent.com/50727403/97994958-edeae580-1e0b-11eb-92fc-32336c9139ba.png)<br>
+The Data upload tab provide option to upload local vector data in GPX, KML, Geojson sand Zipped shapefile format. The files are read locally and converted to Geojson and loaded into map as layer eventually. The layer can be outputted in form of map print A4, Portrait and Landscape.<br><br>
+![image](https://user-images.githubusercontent.com/50727403/97995017-02c77900-1e0c-11eb-8933-d71a3749414c.png)<br><br>
